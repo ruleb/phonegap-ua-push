@@ -758,6 +758,15 @@ NSString *const EventDeepLink = @"urbanairship.deep_link";
     }];
 }
 
+- (void)dismissMessageCenter:(CDVInvokedUrlCommand *)command {
+    [self performCallbackWithCommand:command withBlock:^(NSArray *args, UACordovaCompletionHandler completionHandler) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UAirship defaultMessageCenter] dismiss];
+        });
+        completionHandler(CDVCommandStatus_OK, nil);
+    }];
+}
+
 #pragma mark Inbox
 
 - (void)inboxUpdated {
@@ -845,6 +854,30 @@ NSString *const EventDeepLink = @"urbanairship.deep_link";
             [[UAUtils topController] presentViewController:navController animated:YES completion:nil];
         });
 
+        completionHandler(CDVCommandStatus_OK, nil);
+    }];
+}
+
+- (void)dismissInboxMessage:(CDVInvokedUrlCommand *)command {
+    [self performCallbackWithCommand:command withBlock:^(NSArray *args, UACordovaCompletionHandler completionHandler) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UAMessageViewController *mvc = [[UAMessageViewController alloc] initWithNibName:@"UADefaultMessageCenterMessageViewController"
+                                                                                     bundle:[UAirship resources]];
+            UINavigationController *navController = (UINavigationController *)[UAUtils topController];
+            NSArray *uiViewControllers = [navController childViewControllers];
+            mvc = uiViewControllers[0];
+            [mvc dismissViewControllerAnimated:YES completion:nil];
+        });
+
+        completionHandler(CDVCommandStatus_OK, nil);
+    }];
+}
+
+- (void)dismissOverlayInboxMessage:(CDVInvokedUrlCommand *)command {
+    [self performCallbackWithCommand:command withBlock:^(NSArray *args, UACordovaCompletionHandler completionHandler) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [UALandingPageOverlayController closeAll:YES];
+        });
         completionHandler(CDVCommandStatus_OK, nil);
     }];
 }
